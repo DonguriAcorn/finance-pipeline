@@ -20,6 +20,8 @@ yfinance API → GCS → BigQuery → dbt → Looker Studio
 https://github.com/DonguriAcorn/finance-pipeline
 
 ## フォルダ構成
+
+```
 finance-pipeline/
 ├── dags/
 ├── scripts/
@@ -32,6 +34,7 @@ finance-pipeline/
 ├── .env
 ├── gcp-key.json
 └── README.md
+```
 
 ## GCP構成
 - GCSバケット：finance-pipeline-raw-202606（asia-northeast1）
