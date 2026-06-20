@@ -30,6 +30,7 @@ yfinance API → GCS → BigQuery → dbt → Looker Studio
 - 認証キー：gcp-key.json（ローカルのみ・GitHubには上げない）
 
 ## フォルダ構成
+```
 finance-pipeline/
 ├── dags/          # AirflowのDAGファイル
 ├── scripts/       # Pythonスクリプト（データ取得など）
@@ -38,6 +39,7 @@ finance-pipeline/
 ├── .env
 ├── gcp-key.json   # ローカルのみ
 └── README.md
+```
 
 ## 4週間ロードマップ
 - [x] Week 1：環境構築（Airflow/Docker/GCS/BigQuery）
