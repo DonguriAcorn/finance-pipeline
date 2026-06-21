@@ -57,13 +57,6 @@ finance-pipeline/
 - [ ] Week 3：Transform（dbt） ← 今ここ
 - [ ] Week 4：仕上げ
 
-## Week 2の進捗
-- [x] uv仮想環境作成
-- [x] yfinanceデータ取得スクリプト作成（fetch_finance.py）
-- [x] GCSバケット作成・アップロード確認
-- [x] BigQueryへのロード確認（load_to_bigquery.py）
-- [x] AirflowのDAGに組み込む（finance_pipeline.py）
-
 ## Week 3の進捗
 - [x] dbt-bigqueryインストール
 - [x] dbtプロジェクト作成（finance_dbt）
