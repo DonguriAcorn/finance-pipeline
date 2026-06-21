@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: finance_raw
+    database: my-sandbox-498601
+    schema: finance_pipeline
+    tables:
+      - name: sp500_raw
+      - name: vt_raw
+      - name: usdjpy_raw

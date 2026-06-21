@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: stg_sp500
+    description: "S&P 500の日次データ"
+    columns:
+      - name: date
+        description: "取引日"
+        tests:
+          - not_null
+          - unique
+      - name: close
+        description: "終値"
+        tests:
+          - not_null
+
+  - name: stg_vt
+    description: "VT（全世界株ETF）の日次データ"
+    columns:
+      - name: date
+        description: "取引日"
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_usdjpy
+    description: "USD/JPY為替レートの日次データ"
+    columns:
+      - name: date
+        description: "取引日"
+        tests:
+          - not_null
+          - unique

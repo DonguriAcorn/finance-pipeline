@@ -17,7 +17,7 @@ TICKERS = {
 def fetch_and_upload():
     # 昨日の日付を取得
     today = datetime.today().strftime("%Y-%m-%d")
-    start = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+    start = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
 
     # GCSクライアント初期化
     storage_client = storage.Client.from_service_account_json(GCP_KEY_PATH)
