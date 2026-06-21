@@ -20,32 +20,41 @@ yfinance API → GCS → BigQuery → dbt → Looker Studio
 https://github.com/DonguriAcorn/finance-pipeline
 
 ## フォルダ構成
-
 ```
 finance-pipeline/
 ├── dags/
+│   └── finance_pipeline.py    # AirflowのDAG
 ├── scripts/
-│   ├── fetch_finance.py    # yfinance → GCS
-│   └── load_to_bigquery.py # GCS → BigQuery
+│   ├── fetch_finance.py       # yfinance → GCS
+│   └── load_to_bigquery.py    # GCS → BigQuery
 ├── notebooks/
 │   └── explore.ipynb
 ├── dbt/
+│   └── finance_dbt/           # dbtプロジェクト
+│       ├── dbt_project.yml
+│       ├── models/
+│       ├── macros/
+│       └── seeds/
 ├── docker-compose.yaml
-├── .env
-├── gcp-key.json
+├── .env                       # ローカルのみ
+├── gcp-key.json               # ローカルのみ
 └── README.md
 ```
 
 ## GCP構成
 - GCSバケット：finance-pipeline-raw-202606（asia-northeast1）
-- BigQueryデータセット：finance_pipeline（asia-northeast1）
+- BigQueryデータセット：
+  - finance_pipeline（rawデータ）
+  - finance_staging（stagingモデル出力先）
+  - finance_marts（martsモデル出力先）
 - テーブル：sp500_raw・vt_raw・usdjpy_raw
 - サービスアカウント：finance-pipeline-sa
+- GCPプロジェクトID：my-sandbox-498601
 
 ## 4週間ロードマップ
 - [x] Week 1：環境構築
-- [ ] Week 2：Extract → Load ← 今ここ
-- [ ] Week 3：Transform（dbt）
+- [x] Week 2：Extract → Load
+- [ ] Week 3：Transform（dbt） ← 今ここ
 - [ ] Week 4：仕上げ
 
 ## Week 2の進捗
@@ -53,11 +62,22 @@ finance-pipeline/
 - [x] yfinanceデータ取得スクリプト作成（fetch_finance.py）
 - [x] GCSバケット作成・アップロード確認
 - [x] BigQueryへのロード確認（load_to_bigquery.py）
-- [ ] AirflowのDAGに組み込む ← 次のステップ
+- [x] AirflowのDAGに組み込む（finance_pipeline.py）
+
+## Week 3の進捗
+- [x] dbt-bigqueryインストール
+- [x] dbtプロジェクト作成（finance_dbt）
+- [x] BigQuery接続確認（dbt debug）
+- [x] dbt_project.yml設定（staging/marts層の分離）
+- [ ] sourcesの定義
+- [ ] stagingモデルの作成
+- [ ] martsモデルの作成
+- [ ] テスト・ドキュメントの作成
 
 ## 環境
 - Mac（Intel Core i5, 16GB RAM）
 - VS Code
 - Python 3.13（uv仮想環境）
-- Airflow 3.2.2（Docker）起動済み
+- Airflow 3.2.2（Docker）
+- dbt-fusion 2.0.0-preview.186
 - GCPプロジェクトID：my-sandbox-498601
