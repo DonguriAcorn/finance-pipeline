@@ -1,38 +1,33 @@
-以下は現在進行中のデータエンジニアリング学習プロジェクトの状況です。続きを手伝ってください。
+# finance-pipeline
 
-## プロジェクト概要
-S&P 500・VT・USD/JPYの金融データを毎日自動で収集・整形・可視化するパイプラインを構築中。
+## 概要
+S&P 500・VT・USD/JPYの金融データを毎日自動で収集・整形・可視化するデータパイプライン。
+データエンジニアリングのポートフォリオプロジェクト。
 
-## 使用技術スタック
-- データ取得：yfinance（Python）
-- ストレージ：GCS
-- DWH：BigQuery
-- 変換：dbt Core（dbt-fusion 2.0.0）
-- オーケストレーション：Airflow 3.2.2（Dockerで起動）
-- 可視化：Looker Studio
-- コード管理：GitHub
-
-## データの流れ
+## アーキテクチャ
 ```
 yfinance API
 　　↓ fetch_finance.py
-GCS（finance-pipeline-raw-202606）
+GCS（データレイク）
 　　↓ load_to_bigquery.py
-BigQuery（finance_pipeline）
-　　sp500_raw / vt_raw / usdjpy_raw
-　　↓ dbt
-finance_pipeline_staging
-　　stg_sp500 / stg_vt / stg_usdjpy（view）
-　　↓
-finance_pipeline_marts
-　　mart_finance（table）
-　　↓
-Looker Studio（Week 4）
-全体をAirflow（Docker）が毎日自動実行
+BigQuery（rawテーブル）
+　　↓ dbt（staging → marts）
+Looker Studio（可視化）
+
+全体をAirflow（Docker）が毎日平日9時に自動実行
 ```
 
-## GitHubリポジトリ
-https://github.com/DonguriAcorn/finance-pipeline
+## 使用技術
+| カテゴリ | ツール |
+|---------|--------|
+| データ取得 | yfinance（Python） |
+| ストレージ | GCS |
+| DWH | BigQuery |
+| 変換 | dbt Core 1.11.11 |
+| オーケストレーション | Airflow 3.2.2（Docker） |
+| 可視化 | Looker Studio |
+| コード管理 | GitHub |
+| 環境管理 | uv、Docker |
 
 ## フォルダ構成
 ```
@@ -43,10 +38,11 @@ finance-pipeline/
 │   ├── fetch_finance.py          # yfinance → GCS
 │   └── load_to_bigquery.py       # GCS → BigQuery
 ├── notebooks/
-│   └── explore.ipynb
+│   └── explore.ipynb             # 動作確認用
 ├── dbt/
 │   └── finance_dbt/
 │       ├── dbt_project.yml
+│       ├── profiles.yml          # ローカルのみ
 │       ├── models/
 │       │   ├── sources.yml
 │       │   ├── staging/
@@ -59,8 +55,8 @@ finance-pipeline/
 │       ├── macros/
 │       └── seeds/
 ├── docker-compose.yaml
-├── .env                          # ローカルのみ・GitHubに上げない
-├── gcp-key.json                  # ローカルのみ・GitHubに上げない
+├── .env                          # ローカルのみ
+├── gcp-key.json                  # ローカルのみ
 └── README.md
 ```
 
@@ -68,42 +64,32 @@ finance-pipeline/
 - GCPプロジェクトID：my-sandbox-498601
 - GCSバケット：finance-pipeline-raw-202606（asia-northeast1）
 - BigQueryデータセット：
-  - finance_pipeline（rawデータ）
-  - finance_pipeline_staging（stagingモデル出力先）
-  - finance_pipeline_marts（martsモデル出力先）
-- 生テーブル：sp500_raw・vt_raw・usdjpy_raw
+  - `finance_pipeline`：rawテーブル
+  - `finance_pipeline_staging`：stagingモデル（view）
+  - `finance_pipeline_marts`：martsモデル（table）
 - サービスアカウント：finance-pipeline-sa
-- 認証キー：gcp-key.json（ローカルのみ）
 
-## 環境
-- Mac（Intel Core i5, 16GB RAM）
-- VS Code
-- Python 3.13（uv仮想環境）
-- Airflow 3.2.2（Docker・LocalExecutor）
-- dbt-fusion 2.0.0-preview.186
-- profiles.yml：~/.dbt/profiles.yml（finance_dbtプロファイル）
+## DAGの流れ
+```
+fetch_finance → load_to_bigquery → dbt_run → dbt_test
+```
+毎日平日9時（JST）に自動実行
 
-## 4週間ロードマップ
-- [x] Week 1：環境構築
-- [x] Week 2：Extract → Load
-- [x] Week 3：Transform（dbt）
-- [ ] Week 4：仕上げ ← 次はここ
-
-## Week 3の完了内容
-- [x] dbt-bigqueryインストール
-- [x] dbtプロジェクト作成（finance_dbt）
-- [x] BigQuery接続確認（dbt debug）
-- [x] dbt_project.yml設定（staging/marts層の分離）
-- [x] sources.yml定義
-- [x] stagingモデル作成（重複除去・カラム名統一）
-- [x] martsモデル作成（mart_finance）
-- [x] テスト作成・全テスト通過（7/7）
-
-## Week 4でやること
-- [ ] dbt docsでドキュメント生成
-- [ ] Looker StudioでBigQueryのデータを可視化
-- [ ] AirflowのDAGにdbt runを組み込む
-- [ ] README整備・ポートフォリオとして仕上げる
+## dbtモデル構成
+```
+sources
+├── sp500_raw
+├── vt_raw
+└── usdjpy_raw
+　　↓
+staging
+├── stg_sp500（重複除去・カラム名統一）
+├── stg_vt
+└── stg_usdjpy
+　　↓
+marts
+└── mart_finance（3テーブルをJOINした分析用テーブル）
+```
 
 ## 起動方法
 ```bash
@@ -113,12 +99,16 @@ source .venv/bin/activate
 # Airflow起動
 docker compose up -d
 
-# データ取得・ロード
+# 手動でパイプラインを実行する場合
 python scripts/fetch_finance.py
 python scripts/load_to_bigquery.py
-
-# dbt実行
 cd dbt/finance_dbt
 uv run dbt run
 uv run dbt test
 ```
+
+## ロードマップ
+- [x] Week 1：環境構築
+- [x] Week 2：Extract → Load
+- [x] Week 3：Transform（dbt）
+- [x] Week 4：仕上げ（Looker Studio・README整備）

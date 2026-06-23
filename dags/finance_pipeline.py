@@ -27,5 +27,16 @@ with DAG(
         task_id="load_to_bigquery",
         bash_command="cd /opt/airflow && python scripts/load_to_bigquery.py",
     )
+    
+    dbt_run = BashOperator(
+        task_id="dbt_run",
+        bash_command="cd /opt/airflow/dbt/finance_dbt && dbt run --profiles-dir /opt/airflow/dbt/finance_dbt",
+    )
 
-    fetch >> load
+    
+    dbt_test = BashOperator(
+        task_id="dbt_test",
+    bash_command="cd /opt/airflow/dbt/finance_dbt && dbt test --profiles-dir /opt/airflow/dbt/finance_dbt",
+    )
+    
+    fetch >> load >> dbt_run >> dbt_test

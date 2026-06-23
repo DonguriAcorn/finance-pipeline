@@ -219,3 +219,5 @@ __marimo__/
 .env
 gcp-key.json
 notebooks/
+dbt/finance_dbt/profiles.yml
+logs/
