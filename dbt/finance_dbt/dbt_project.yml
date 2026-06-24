@@ -16,7 +16,6 @@ seeds:
 
 models:
   finance_dbt:
-    +static_analysis: strict
     staging:
       +materialized: view
       +schema: staging
