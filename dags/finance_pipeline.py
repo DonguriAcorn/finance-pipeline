@@ -20,7 +20,7 @@ with DAG(
 
     fetch = BashOperator(
         task_id="fetch_finance",
-        bash_command="cd /opt/airflow && python scripts/fetch_finance.py",
+        bash_command="cd /opt/airflow && python scripts/fetch_finance.py {{ ds }}",
     )
 
     load = BashOperator(
